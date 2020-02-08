@@ -5,7 +5,8 @@ import java.util.List;
 import mrjake.aunis.Aunis;
 import mrjake.aunis.block.AunisBlocks;
 import mrjake.aunis.stargate.EnumSymbol;
-import mrjake.aunis.tileentity.StargateBaseTile;
+import mrjake.aunis.tileentity.stargate.StargateMilkyWayBaseTile;
+import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.util.ITooltipFlag;
@@ -72,10 +73,11 @@ public class PageNotebookItem extends Item {
 	
 	@Override
 	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-		if (world.getBlockState(pos).getBlock() == AunisBlocks.stargateBaseBlock) {
-						
-			if (!world.isRemote) {
-				StargateBaseTile gateTile = (StargateBaseTile) world.getTileEntity(pos);
+		if (!world.isRemote) {
+			Block block = world.getBlockState(pos).getBlock();
+			
+			if (block == AunisBlocks.stargateMilkyWayBaseBlock) {
+				StargateMilkyWayBaseTile gateTile = (StargateMilkyWayBaseTile) world.getTileEntity(pos);
 				NBTTagCompound compound = player.getHeldItem(hand).getTagCompound();
 				
 				if (compound == null)
@@ -109,8 +111,6 @@ public class PageNotebookItem extends Item {
 					player.addItemStackToInventory(stack);
 				}
 			}
-			
-			return EnumActionResult.SUCCESS;
 		}
 	
 		return EnumActionResult.PASS;

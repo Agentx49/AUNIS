@@ -3,20 +3,19 @@ package mrjake.aunis.renderer.transportrings;
 import java.util.ArrayList;
 import java.util.List;
 
-import mrjake.aunis.renderer.ISpecialRenderer;
-import mrjake.aunis.renderer.state.TransportRingsRendererState;
+import mrjake.aunis.state.TransportRingsRendererState;
 import mrjake.aunis.tileentity.TransportRingsTile;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.world.World;
 
-public class TransportRingsRenderer implements ISpecialRenderer<TransportRingsRendererState>{
+public class TransportRingsRenderer {
 
-	public static final int ringCount = 5; 
-	public static final int uprisingInterval = 5; 
-	public static final int fallingInterval = 5;
+	public static final int RING_COUNT = 5; 
+	public static final int INTERVAL_UPRISING = 5; 
+	public static final int INTERVAL_FALLING = 5;
 	
-	public static final double animationDiv = 2.7; 
+	public static final double ANIMATION_SPEED_DIVISOR = 2.7; 
 	
 	private World world;
 	private List<Ring> rings;
@@ -25,7 +24,7 @@ public class TransportRingsRenderer implements ISpecialRenderer<TransportRingsRe
 		this.world = te.getWorld();
 		
 		rings = new ArrayList<>();
-		for (int i=0; i<ringCount; i++) {
+		for (int i=0; i<RING_COUNT; i++) {
 			rings.add(new Ring(world, i));
 		}
 	}
@@ -35,17 +34,16 @@ public class TransportRingsRenderer implements ISpecialRenderer<TransportRingsRe
 	private int currentRing;
 	private int lastRingAnimated;	
 	private long lastTick;	
-	
-	public int which = 0;
-	
-	@Override
+		
 	public void render(double x, double y, double z, double partialTicks) {
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 15 * 16, 15 * 16);
 		
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(x, y+1.1, z);
+		GlStateManager.translate(x, y+1.35, z);
 //		GlStateManager.translate(x+0.50, y+2.2, z);
 
+		GlStateManager.scale(0.5, 0.5, 0.5);
+		
 		for (Ring ring : rings)
 			ring.render(partialTicks);
 		
@@ -65,29 +63,29 @@ public class TransportRingsRenderer implements ISpecialRenderer<TransportRingsRe
 					/**
 					 * Spawn rings in intervals of 7 ticks(not repeated in a single tick)
 					 */
-					if (tick % uprisingInterval == 0 && tick != lastTick) {	
-						currentRing = (int)(tick/uprisingInterval) - 1;
+					if (tick % INTERVAL_UPRISING == 0 && tick != lastTick) {	
+						currentRing = (int)(tick/INTERVAL_UPRISING) - 1;
 						
 //						Aunis.info("[uprising][currentRing="+currentRing+"]: tick: "+tick);
 						
 						// Handles correction when rings were not rendered
-						for (int ring=lastRingAnimated+1; ring<Math.min(currentRing, ringCount); ring++) {
+						for (int ring=lastRingAnimated+1; ring<Math.min(currentRing, RING_COUNT); ring++) {
 //							Aunis.info("[uprising][ring="+ring+"]: setTop()");
 							
 							rings.get(ring).setTop();
 						}
 						
-						if (currentRing < ringCount) {
+						if (currentRing < RING_COUNT) {
 							rings.get(currentRing).animate(state.ringsUprising);
 						
 							lastRingAnimated = currentRing;
 							lastTick = tick;
 						}
 						
-						if (currentRing >= ringCount-1) {
+						if (currentRing >= RING_COUNT-1) {
 							state.ringsUprising = false;
 							
-							lastRingAnimated = ringCount;
+							lastRingAnimated = RING_COUNT;
 							lastTick = -1;
 						}
 					}
@@ -104,8 +102,8 @@ public class TransportRingsRenderer implements ISpecialRenderer<TransportRingsRe
 					/**
 					 * Start lowering them in interval of 5 ticks
 					 */
-					if (tick % fallingInterval == 0 && tick != lastTick) {
-						currentRing = ringCount - (int)(tick/fallingInterval);
+					if (tick % INTERVAL_FALLING == 0 && tick != lastTick) {
+						currentRing = RING_COUNT - (int)(tick/INTERVAL_FALLING);
 						
 //						Aunis.info("[falling ][currentRing="+currentRing+"]: lastRingAnimated: "+lastRingAnimated);
 						
@@ -147,14 +145,8 @@ public class TransportRingsRenderer implements ISpecialRenderer<TransportRingsRe
 
 	TransportRingsRendererState state = new TransportRingsRendererState();
 	
-	@Override
 	public void setState(TransportRingsRendererState rendererState) {
 		lastTick = -1;
 		this.state = rendererState;
-	}
-
-	@Override
-	public float getHorizontalRotation() {
-		return 0;
 	}
 }

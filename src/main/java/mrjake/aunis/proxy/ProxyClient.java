@@ -2,7 +2,7 @@ package mrjake.aunis.proxy;
 
 import mrjake.aunis.Aunis;
 import mrjake.aunis.block.AunisBlocks;
-import mrjake.aunis.block.color.GrassBlockColor;
+import mrjake.aunis.block.GrassBlockColor;
 import mrjake.aunis.fluid.AunisBlockFluid;
 import mrjake.aunis.fluid.AunisFluids;
 import mrjake.aunis.item.AunisItems;
@@ -11,16 +11,13 @@ import mrjake.aunis.item.color.CrystalControlDHDItemColor;
 import mrjake.aunis.item.color.PageMysteriousItemColor;
 import mrjake.aunis.item.color.PageNotebookItemColor;
 import mrjake.aunis.item.renderer.PageNotebookTEISR;
-import mrjake.aunis.tesr.CrystalInfuserTESR;
-import mrjake.aunis.tesr.DHD_TESR;
-import mrjake.aunis.tesr.StargateTESR;
-import mrjake.aunis.tesr.TRControllerTESR;
-import mrjake.aunis.tesr.TransportRingsTESR;
+import mrjake.aunis.renderer.SpecialRenderer;
 import mrjake.aunis.tileentity.CrystalInfuserTile;
 import mrjake.aunis.tileentity.DHDTile;
-import mrjake.aunis.tileentity.StargateBaseTile;
 import mrjake.aunis.tileentity.TRControllerTile;
 import mrjake.aunis.tileentity.TransportRingsTile;
+import mrjake.aunis.tileentity.stargate.StargateMilkyWayBaseTile;
+import mrjake.aunis.tileentity.stargate.StargateOrlinBaseTile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.statemap.StateMap;
 import net.minecraft.client.resources.I18n;
@@ -46,7 +43,7 @@ public class ProxyClient implements IProxy {
 		Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new CrystalControlDHDItemColor(), AunisItems.crystalControlDhd);
 		Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new PageMysteriousItemColor(), AunisItems.pageMysteriousItem);
     	Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new PageNotebookItemColor(), AunisItems.pageNotebookItem);
-		Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(new GrassBlockColor(), AunisBlocks.stargateMemberBlock);
+		Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(new GrassBlockColor(), AunisBlocks.stargateMilkyWayMemberBlock);
     }
  
     public void postInit(FMLPostInitializationEvent event) {
@@ -60,12 +57,15 @@ public class ProxyClient implements IProxy {
 	private void registerRenderers() {
 		OBJLoader.INSTANCE.addDomain("aunis");
 		
-		ClientRegistry.bindTileEntitySpecialRenderer(StargateBaseTile.class, new StargateTESR());
-		ClientRegistry.bindTileEntitySpecialRenderer(DHDTile.class, new DHD_TESR());
+		SpecialRenderer specialRenderer = new SpecialRenderer();
 		
-		ClientRegistry.bindTileEntitySpecialRenderer(CrystalInfuserTile.class, new CrystalInfuserTESR());
-		ClientRegistry.bindTileEntitySpecialRenderer(TransportRingsTile.class, new TransportRingsTESR());
-		ClientRegistry.bindTileEntitySpecialRenderer(TRControllerTile.class, new TRControllerTESR());
+		ClientRegistry.bindTileEntitySpecialRenderer(StargateMilkyWayBaseTile.class, specialRenderer);
+		ClientRegistry.bindTileEntitySpecialRenderer(StargateOrlinBaseTile.class, specialRenderer);
+		ClientRegistry.bindTileEntitySpecialRenderer(DHDTile.class, specialRenderer);
+		
+		ClientRegistry.bindTileEntitySpecialRenderer(CrystalInfuserTile.class, specialRenderer);
+		ClientRegistry.bindTileEntitySpecialRenderer(TransportRingsTile.class, specialRenderer);
+		ClientRegistry.bindTileEntitySpecialRenderer(TRControllerTile.class, specialRenderer);
 	}
 	
 

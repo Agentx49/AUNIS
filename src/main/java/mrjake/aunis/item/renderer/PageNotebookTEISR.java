@@ -3,7 +3,6 @@ package mrjake.aunis.item.renderer;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.lang3.reflect.FieldUtils;
 import org.lwjgl.opengl.GL11;
 
 import mrjake.aunis.item.PageNotebookBakedModel;
@@ -21,7 +20,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Timer;
 import net.minecraft.util.math.MathHelper;
 
 public class PageNotebookTEISR extends TileEntityItemStackRenderer {
@@ -154,33 +152,11 @@ public class PageNotebookTEISR extends TileEntityItemStackRenderer {
 	}
 	
 	@Override
-	public void renderByItem(ItemStack itemStackIn, float partialTicks) {		
-//		boolean mainhand = Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() == AunisItems.pageNotebookItem;
+	public void renderByItem(ItemStack itemStackIn, float partialTicks) {	
+		partialTicks = Minecraft.getMinecraft().getRenderPartialTicks();
 		boolean mainhand = PageNotebookBakedModel.lastTransform == TransformType.FIRST_PERSON_RIGHT_HAND;
 		
 		EnumHandSide handSide = mainhand ? EnumHandSide.RIGHT : EnumHandSide.LEFT;
-				
-		try {			
-			try {
-				Timer timer = (Timer) FieldUtils.readField(Minecraft.getMinecraft(), "field_71428_T", true);
-				partialTicks = timer.renderPartialTicks;
-			}
-			
-			catch (IllegalArgumentException e) {
-				Timer timer = (Timer) FieldUtils.readField(Minecraft.getMinecraft(), "timer", true);
-				partialTicks = timer.renderPartialTicks;
-			}
-			
-			catch (IncompatibleClassChangeError e) {
-				e.printStackTrace();
-				
-				partialTicks = 0;
-			}
-		}
-		
-		catch (IllegalAccessException e) {
-			e.printStackTrace();
-		}
 		
 		GlStateManager.pushMatrix();
 		GlStateManager.scale(20,20,20);

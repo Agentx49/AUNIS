@@ -2,14 +2,19 @@ package mrjake.aunis;
 
 import org.apache.logging.log4j.Logger;
 
-import mrjake.aunis.command.CommandQueryStargate;
+import mrjake.aunis.command.AunisCommands;
+import mrjake.aunis.datafixer.TileNamesFixer;
 import mrjake.aunis.fluid.AunisFluids;
+import mrjake.aunis.integration.OCWrapperInterface;
 import mrjake.aunis.integration.ThermalIntegration;
-import mrjake.aunis.integration.opencomputers.OCWrapperInterface;
 import mrjake.aunis.packet.AunisPacketHandler;
 import mrjake.aunis.proxy.IProxy;
 import mrjake.aunis.worldgen.AunisWorldGen;
+import net.minecraft.util.datafix.FixTypes;
+import net.minecraftforge.common.util.CompoundDataFixer;
+import net.minecraftforge.common.util.ModFixs;
 import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -25,7 +30,9 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 public class Aunis {	
     public static final String ModID = "aunis";
     public static final String Name = "AUNIS";
-    public static final String Version = "1.5.0-beta-hotfix3.1";
+    public static final String Version = "1.6.1-beta";
+    public static final int DATA_VERSION = 6;
+
     public static final String MCVersion = "[1.12.2]";
  
     public static final boolean DEBUG = false;
@@ -41,25 +48,13 @@ public class Aunis {
     public static IProxy proxy;
     public static Logger logger;
     
-	// ------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // OpenComputers
-    private static final String OC_WRAPPER_LOADED = "mrjake.aunis.integration.opencomputers.OCWrapperLoaded";
-    private static final String OC_WRAPPER_NOT_LOADED = "mrjake.aunis.integration.opencomputers.OCWrapperNotLoaded";
     
-    private static OCWrapperInterface ocWrapper;
-    public static OCWrapperInterface getOCWrapper() {
-    	if (ocWrapper == null) {
-    		try {
-				ocWrapper = (OCWrapperInterface) Class.forName(Loader.isModLoaded("opencomputers") ? OC_WRAPPER_LOADED : OC_WRAPPER_NOT_LOADED).newInstance();
-			}
-    		
-    		catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-				e.printStackTrace();
-			}
-    	}
-    	
-    	return ocWrapper;
-    }
+    private static final String OC_WRAPPER_LOADED = "mrjake.aunis.integration.OCWrapperLoaded";
+    private static final String OC_WRAPPER_NOT_LOADED = "mrjake.aunis.integration.OCWrapperNotLoaded";
+    
+    public static OCWrapperInterface ocWrapper;
     
 	// ------------------------------------------------------------------------
     static {
@@ -79,9 +74,24 @@ public class Aunis {
     @EventHandler
     public void init(FMLInitializationEvent event) {
     	GameRegistry.registerWorldGenerator(new AunisWorldGen(), 0);
-    	
     	ThermalIntegration.registerRecipes();
     	
+    	try {
+	    	if (Loader.isModLoaded("opencomputers"))
+	    		ocWrapper = (OCWrapperInterface) Class.forName(OC_WRAPPER_LOADED).newInstance();
+	    	else
+	    		ocWrapper = (OCWrapperInterface) Class.forName(OC_WRAPPER_NOT_LOADED).newInstance();
+    	}
+    	
+    	catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+    		info("Exception loading OpenComputers wrapper");
+    		e.printStackTrace();
+    	}
+    	
+    	// Data fixers
+		ModFixs modFixs = ((CompoundDataFixer) FMLCommonHandler.instance().getDataFixer()).init(ModID, DATA_VERSION);
+		modFixs.registerFix(FixTypes.BLOCK_ENTITY, new TileNamesFixer());
+		
     	proxy.init(event);
     }
  
@@ -92,7 +102,7 @@ public class Aunis {
     
     @EventHandler
     public void serverStarting(FMLServerStartingEvent event) {
-    	event.registerServerCommand(new CommandQueryStargate());
+    	AunisCommands.registerCommands(event);
     }
     
 	public static void log(String msg) {

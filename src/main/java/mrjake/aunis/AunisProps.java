@@ -2,7 +2,9 @@ package mrjake.aunis;
 
 import java.util.Arrays;
 
-import mrjake.aunis.block.StargateMemberBlock;
+import mrjake.aunis.block.InvisibleBlock;
+import mrjake.aunis.block.stargate.StargateMilkyWayMemberBlock;
+import mrjake.aunis.block.stargate.StargateOrlinMemberBlock;
 import mrjake.aunis.property.PropertyMemberVariant;
 import mrjake.aunis.property.PropertyUnlistedCamoBlockState;
 import net.minecraft.block.properties.IProperty;
@@ -42,7 +44,7 @@ public class AunisProps {
 	public static final PropertyBool RENDER_BLOCK = PropertyBool.create("render_block");
 	
 	/**
-	 * Defines {@link StargateMemberBlock}'s variant.
+	 * Defines {@link StargateMilkyWayMemberBlock}'s variant.
 	 */
 	public static final PropertyMemberVariant MEMBER_VARIANT = PropertyMemberVariant.create("member_variant");
 	
@@ -51,4 +53,14 @@ public class AunisProps {
 	 * Contains camouflage blockstate. Used later in rendering.
 	 */
 	public static final PropertyUnlistedCamoBlockState CAMO_BLOCKSTATE = new PropertyUnlistedCamoBlockState();
+
+	/**
+	 * Used to generate collision boxes in {@link StargateOrlinMemberBlock}.
+	 */
+	public static final PropertyDirection ORLIN_VARIANT = PropertyDirection.create("orlin_variant");
+	
+	/**
+	 * {@link InvisibleBlock} uses it to determine it's collisions boxes.
+	 */
+	public static final PropertyBool HAS_COLLISIONS = PropertyBool.create("collisions");
 }
